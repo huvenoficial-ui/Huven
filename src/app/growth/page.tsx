@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import Nav from '@/components/Nav'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase-browser'
 import { useAuth } from '@/hooks/useAuth'
 
 export default function GrowthPage() {

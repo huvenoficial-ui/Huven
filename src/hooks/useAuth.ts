@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase-browser'
 import type { User } from '@supabase/supabase-js'
 
 export function useAuth(redirectIfUnauth = true) {
@@ -13,19 +13,17 @@ export function useAuth(redirectIfUnauth = true) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session && redirectIfUnauth) {
         router.push('/login')
-      } else {
-        setUser(session?.user ?? null)
-        setLoading(false)
       }
+      setUser(session?.user ?? null)
+      setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session && redirectIfUnauth) {
         router.push('/login')
-      } else {
-        setUser(session?.user ?? null)
-        setLoading(false)
       }
+      setUser(session?.user ?? null)
+      setLoading(false)
     })
 
     return () => subscription.unsubscribe()

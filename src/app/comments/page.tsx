@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
 import Nav from '@/components/Nav'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase-browser'
 import { useAuth } from '@/hooks/useAuth'
 
 type Stage = 'novo' | 'contato' | 'proposta' | 'fechado' | 'perdido'
