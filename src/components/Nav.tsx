@@ -11,6 +11,7 @@ const links = [
   { href: '/generator', label: 'Gerador' },
   { href: '/competitors', label: 'Concorrentes' },
   { href: '/growth', label: 'Crescimento' },
+  { href: '/settings', label: 'Instagram' },
 ]
 
 export default function Nav({ videoCount = 0 }: { videoCount?: number }) {
