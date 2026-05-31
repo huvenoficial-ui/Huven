@@ -34,7 +34,7 @@ export default function VideosPage() {
     setQueue(prev => [...prev, ...newItems])
   }, [])
 
-  const extractFrames = async (file: File, count = 4): Promise<string[]> => {
+  const extractFrames = async (file: File): Promise<string[]> => {
     return new Promise((resolve) => {
       const reader = new FileReader()
       reader.onload = (e) => {
@@ -49,7 +49,17 @@ export default function VideosPage() {
         video.onloadeddata = async () => {
           const duration = video.duration
           if (!duration || isNaN(duration)) { resolve(frames); return }
-          const times = Array.from({ length: count }, (_, i) => (duration * (i + 0.5)) / count)
+          // Estratégia: 3 frames do início (gancho), 2 do meio, 1 do fim
+          // O gancho está sempre nos primeiros 3 segundos
+          const hookEnd = Math.min(3, duration * 0.15)
+          const times = [
+            0.3,                          // frame 1 — muito início (gancho visual)
+            Math.min(1.0, hookEnd * 0.5), // frame 2 — 1s (texto de gancho)
+            Math.min(2.5, hookEnd),       // frame 3 — fim do gancho
+            duration * 0.35,              // frame 4 — desenvolvimento
+            duration * 0.65,              // frame 5 — virada
+            duration * 0.9,               // frame 6 — CTA/conclusão
+          ].filter(t => t < duration)
           for (const t of times) {
             await new Promise<void>((done) => {
               let settled = false
