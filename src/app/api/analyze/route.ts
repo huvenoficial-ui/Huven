@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { anthropic } from '@/lib/anthropic'
 import { supabaseAdmin } from '@/lib/supabase'
 
+export const maxDuration = 60
+
 export async function POST(req: NextRequest) {
   try {
     const { frames, filename } = await req.json()
@@ -13,7 +15,7 @@ export async function POST(req: NextRequest) {
     }))
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 1500,
       messages: [{
         role: 'user',

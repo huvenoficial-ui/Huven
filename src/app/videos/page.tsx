@@ -55,8 +55,12 @@ export default function VideosPage() {
               let settled = false
               const finish = () => {
                 if (settled) return; settled = true
-                canvas.width = video.videoWidth || 480
-                canvas.height = video.videoHeight || 854
+                const maxDim = 640
+                const vw = video.videoWidth || 480
+                const vh = video.videoHeight || 854
+                const scale = Math.min(1, maxDim / Math.max(vw, vh))
+                canvas.width = Math.round(vw * scale)
+                canvas.height = Math.round(vh * scale)
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
                 const b64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1]
                 if (b64?.length > 500) frames.push(b64)
