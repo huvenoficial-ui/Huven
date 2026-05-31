@@ -39,6 +39,8 @@ export default function CRMPage() {
   const [newTag, setNewTag] = useState<Record<string, string>>({})
   const [input, setInput] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
+  const [importing, setImporting] = useState(false)
+  const [importMsg, setImportMsg] = useState('')
   const [replyLoading, setReplyLoading] = useState<string | null>(null)
 
   useEffect(() => {
@@ -122,6 +124,22 @@ export default function CRMPage() {
     setReplyLoading(null)
   }
 
+  const importFromInstagram = async () => {
+    if (!user) return
+    setImporting(true); setImportMsg('')
+    const { data: profile } = await supabase.from('instagram_profile').select('username').limit(1).single()
+    if (!profile) { setImportMsg('Liga o Instagram primeiro nas Configurações'); setImporting(false); return }
+    const res = await fetch('/api/instagram/comments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: profile.username })
+    })
+    const data = await res.json()
+    if (data.error) setImportMsg('Erro: ' + data.error)
+    else { setImportMsg(`✓ ${data.imported} leads importados`); loadLeads() }
+    setImporting(false)
+  }
+
   const classifyAndAdd = async () => {
     if (!input.trim() || !user) return
     setAnalyzing(true)
@@ -170,23 +188,36 @@ export default function CRMPage() {
       <div style={{ padding: '1.5rem' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', maxWidth: '100%', marginBottom: '1.2rem' }}>
-          <div>
-            <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '1.8rem', letterSpacing: '-0.03em' }}>Social Selling CRM</h1>
-            <p style={{ fontSize: '0.82rem', color: '#5A5E6B', marginTop: '0.2rem', fontFamily: 'Inter, sans-serif' }}>
-              {leads.length} lead{leads.length !== 1 ? 's' : ''} · arrasta entre colunas para avançar no funil
-            </p>
+        <div style={{ maxWidth: '100%', marginBottom: '1.2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+            <div>
+              <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '1.8rem', letterSpacing: '-0.03em' }}>Social Selling CRM</h1>
+              <p style={{ fontSize: '0.82rem', color: '#5A5E6B', marginTop: '0.2rem', fontFamily: 'Inter, sans-serif' }}>
+                {leads.length} lead{leads.length !== 1 ? 's' : ''} · arrasta entre colunas para avançar no funil
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {importMsg && <span style={{ fontSize: '0.75rem', color: importMsg.startsWith('✓') ? '#44ff88' : '#ff8888', fontFamily: 'Inter, sans-serif' }}>{importMsg}</span>}
+              <button onClick={importFromInstagram} disabled={importing} style={{
+                fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '0.8rem',
+                padding: '0.6rem 1rem', background: importing ? '#1C1F28' : 'rgba(201,162,74,0.1)',
+                color: importing ? '#5A5E6B' : '#C9A24A', border: '1px solid rgba(201,162,74,0.3)',
+                cursor: importing ? 'not-allowed' : 'pointer', borderRadius: 4, whiteSpace: 'nowrap'
+              }}>
+                {importing ? 'Importando...' : '📥 Importar do Instagram'}
+              </button>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: 8 }}>
             <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Cole comentários do Instagram (um por linha)..."
-              style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.1)', color: '#F0EDE8', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', padding: '0.6rem 0.9rem', outline: 'none', width: 260, height: 64, resize: 'none', borderRadius: 4 }}
+              placeholder="Cole comentários do Instagram (um por linha) e clica Classificar..."
+              style={{ flex: 1, background: '#161920', border: '1px solid rgba(255,255,255,0.1)', color: '#F0EDE8', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', padding: '0.6rem 0.9rem', outline: 'none', height: 52, resize: 'none', borderRadius: 4 }}
             />
             <button onClick={classifyAndAdd} disabled={analyzing || !input.trim()} style={{
               fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '0.82rem',
-              padding: '0 1rem', height: 64, background: analyzing ? '#1C1F28' : '#C9A24A',
+              padding: '0 1.2rem', background: analyzing ? '#1C1F28' : '#C9A24A',
               color: analyzing ? '#5A5E6B' : '#0D0E12', border: 'none', cursor: 'pointer', borderRadius: 4, whiteSpace: 'nowrap'
             }}>
               {analyzing ? '...' : '⚡ Classificar'}

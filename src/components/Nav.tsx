@@ -9,9 +9,10 @@ const links = [
   { href: '/videos', label: 'Vídeos' },
   { href: '/comments', label: 'CRM' },
   { href: '/generator', label: 'Gerador' },
+  { href: '/intelligence', label: 'Inteligência' },
   { href: '/competitors', label: 'Concorrentes' },
   { href: '/growth', label: 'Crescimento' },
-  { href: '/settings', label: 'Instagram' },
+  { href: '/settings', label: 'Config.' },
 ]
 
 export default function Nav({ videoCount = 0 }: { videoCount?: number }) {

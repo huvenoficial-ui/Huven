@@ -11,8 +11,16 @@ interface Headline {
   hashtags: string[]
 }
 
-const TEMAS = ['Vendas & Fechamento','Mentalidade Empresarial','Dinheiro & Riqueza','Liderança & Gestão','Fé + Negócios','Mercado Brasileiro','Precificação','Crescimento & Escala','Tema livre']
-const ESTILOS = ['paradoxo','acusacao','inversao','julgamento','cultural','identidade']
+const TEMAS = [
+  'Vendas & Fechamento','Mentalidade Empresarial','Dinheiro & Riqueza',
+  'Liderança & Gestão','Fé + Negócios','Mercado Brasileiro',
+  'Precificação & Valor','Crescimento & Escala','Prospecção Ativa',
+  'Gestão de Equipa','Marketing Digital','Branding Pessoal',
+  'Fluxo de Caixa','Negociação','Atendimento ao Cliente',
+  'Produtividade do Empresário','Sócios & Conflitos','Erros de Iniciante',
+  'Casos de Sucesso','Rotina do Empreendedor','Tema livre'
+]
+const ESTILOS = ['paradoxo','acusacao','inversao','julgamento','cultural','identidade','provocacao','revelacao']
 
 export default function GeneratorPage() {
   const [tema, setTema] = useState(TEMAS[0])

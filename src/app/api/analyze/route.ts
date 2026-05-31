@@ -25,8 +25,14 @@ export async function POST(req: NextRequest) {
             type: 'text',
             text: `Analise estes frames de um Reel do Instagram (nicho: vendas para empresários brasileiros — HUVEN).
 
+INSTRUÇÕES IMPORTANTES:
+- Se os frames mostram principalmente fundo/cenário com pouco conteúdo visual, o vídeo provavelmente tem o valor no ÁUDIO — analisa o contexto visual (ambiente, postura, expressão, texto visível, legendas) para inferir o tema
+- Lê qualquer texto visível nos frames (legendas, títulos, textos na tela)
+- Se não há rosto ou há cenário estático, o tema deve ser deduzido de todo elemento visual disponível
+- Analisa com criatividade — mesmo frames simples têm informação
+
 Responda SOMENTE com este JSON preenchido, sem texto antes ou depois:
-{"tema":"tema em 5 palavras","gancho":"frase de abertura exata","estrutura":"como o video esta organizado em 1 frase","producao":"cenario roupa iluminacao cortes em 1 frase","potencial":{"score":8,"motivo":"por que esse score em 1 frase"},"pilares":{"choque":8,"divisao":7,"salvamento":6,"compartilhamento":9},"padroes":["padrao1","padrao2","padrao3"],"insights":"observacao estrategica principal em 1 frase"}`
+{"tema":"tema em 5 palavras","gancho":"frase de abertura exata ou provável","estrutura":"como o video parece estar organizado em 1 frase","producao":"cenario roupa iluminacao ambiente em 1 frase","potencial":{"score":8,"motivo":"por que esse score em 1 frase"},"pilares":{"choque":8,"divisao":7,"salvamento":6,"compartilhamento":9},"padroes":["padrao1","padrao2","padrao3"],"insights":"observacao estrategica principal em 1 frase"}`
           }
         ]
       }]
