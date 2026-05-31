@@ -175,6 +175,37 @@ export default function GrowthPage() {
               )}
             </div>
 
+            {/* Daily gains table */}
+            {filteredMetrics.length >= 2 && (
+              <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem', marginBottom: 14 }}>
+                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 12 }}>
+                  Ganhos por dia
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 0 }}>
+                  {/* Header */}
+                  {['Data', 'Seguidores', '+/- por dia'].map(h => (
+                    <div key={h} style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.55rem', color: '#5A5E6B', letterSpacing: '0.15em', textTransform: 'uppercase', padding: '4px 8px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>{h}</div>
+                  ))}
+                  {/* Rows — newest first */}
+                  {[...filteredMetrics].reverse().map((m, i, arr) => {
+                    const prev = arr[i + 1]
+                    const diff = prev ? m.followers - prev.followers : null
+                    const d = new Date(m.date)
+                    const dateStr = `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`
+                    return (
+                      <>
+                        <div key={m.date+'d'} style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: '#5A5E6B', padding: '7px 8px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{dateStr}</div>
+                        <div key={m.date+'f'} style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '0.85rem', color: '#F0EDE8', padding: '7px 8px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{m.followers?.toLocaleString('pt-BR')}</div>
+                        <div key={m.date+'g'} style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '0.85rem', padding: '7px 8px', borderBottom: '1px solid rgba(255,255,255,0.04)', color: diff === null ? '#5A5E6B' : diff > 0 ? '#44ff88' : diff < 0 ? '#ff6666' : '#5A5E6B' }}>
+                          {diff === null ? '—' : diff > 0 ? `+${diff.toLocaleString('pt-BR')}` : diff.toLocaleString('pt-BR')}
+                        </div>
+                      </>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Projections */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem' }}>
