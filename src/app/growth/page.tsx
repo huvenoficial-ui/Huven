@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import Nav from '@/components/Nav'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts'
-import { supabase } from '@/lib/supabase-browser'
 import { useAuth } from '@/hooks/useAuth'
 
 const PERIODS = [
@@ -32,10 +31,8 @@ export default function GrowthPage() {
 
   const loadData = async () => {
     setLoading(true)
-    const [{ data: prof }, { data: met }] = await Promise.all([
-      supabase.from('instagram_profile').select('*').order('last_synced', { ascending: false }).limit(1).single(),
-      supabase.from('instagram_metrics').select('*').order('date', { ascending: true }).limit(90),
-    ])
+    const res = await fetch('/api/instagram/metrics')
+    const { profile: prof, metrics: met } = await res.json()
     setProfile(prof)
     setMetrics(met || [])
     setLoading(false)
