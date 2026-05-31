@@ -26,7 +26,7 @@ export default function VideosPage() {
   const [analyzing, setAnalyzing] = useState(false)
 
   const handleFiles = useCallback((files: FileList) => {
-    const newItems: QueueItem[] = [...files].filter(f => f.type.startsWith('video/')).map(f => ({
+    const newItems: QueueItem[] = Array.from(files).filter(f => f.type.startsWith('video/')).map(f => ({
       id: Math.random().toString(36).slice(2),
       file: f,
       status: 'pending'
