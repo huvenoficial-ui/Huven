@@ -23,17 +23,19 @@ export async function POST(req: NextRequest) {
 
     const handle = username.replace('@', '')
 
-    // 1. Fetch profile
-    const profileData = await igPost('/api/instagram/userInfo', { username: handle })
+    // Fetch profile + posts in parallel
+    const [profileData, postsData] = await Promise.all([
+      igPost('/api/instagram/userInfo', { username: handle }),
+      igPost('/api/instagram/posts', { username: handle }),
+    ])
+
     const user = profileData?.result?.[0]?.user
     if (!user) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
-    // 2. Fetch recent posts for engagement stats
-    const postsData = await igPost('/api/instagram/posts', { username: handle })
     const edges = postsData?.result?.edges || []
     const posts = edges.map((e: any) => e.node).filter(Boolean)
 
-    // 3. Calculate engagement metrics
+    // Engagement metrics
     const totalLikes = posts.reduce((s: number, p: any) => s + (p.like_count || 0), 0)
     const totalComments = posts.reduce((s: number, p: any) => s + (p.comment_count || 0), 0)
     const avgLikes = posts.length > 0 ? Math.round(totalLikes / posts.length) : 0
@@ -42,47 +44,44 @@ export async function POST(req: NextRequest) {
       ? parseFloat((((avgLikes + avgComments) / user.follower_count) * 100).toFixed(2))
       : 0
 
-    // 4. Estimate historical follower counts from post likes
-    // Formula: at post time, estimated followers ≈ post_likes / (avg_engagement_rate/100)
+    // Build historical points from post timestamps
     const engRate = engagementRate > 0 ? engagementRate / 100 : 0.02
-    const historicalPoints: { date: string; followers: number }[] = []
-
     const now = Math.floor(Date.now() / 1000)
-    const sortedPosts = [...posts].sort((a: any, b: any) => (a.taken_at || 0) - (b.taken_at || 0))
+    const byDate: Record<string, number> = {}
 
-    for (const post of sortedPosts) {
+    for (const post of posts) {
       if (!post.taken_at || !post.like_count) continue
       const daysAgo = Math.floor((now - post.taken_at) / 86400)
       if (daysAgo > 90) continue
       const dateStr = new Date(post.taken_at * 1000).toISOString().split('T')[0]
-      const estFollowers = Math.max(1000, Math.round(post.like_count / engRate))
-      // Cap at current ±30% to avoid wild swings
-      const capped = Math.min(user.follower_count * 1.3, Math.max(user.follower_count * 0.7, estFollowers))
-      historicalPoints.push({ date: dateStr, followers: Math.round(capped) })
+      const est = Math.round(post.like_count / engRate)
+      const capped = Math.min(user.follower_count * 1.25, Math.max(user.follower_count * 0.75, est))
+      byDate[dateStr] = Math.round(capped)
     }
 
-    // Always add today
+    // Always include today with real count
     const today = new Date().toISOString().split('T')[0]
-    historicalPoints.push({ date: today, followers: user.follower_count })
+    byDate[today] = user.follower_count
 
-    // Deduplicate by date (keep latest)
-    const byDate: Record<string, number> = {}
-    for (const p of historicalPoints) byDate[p.date] = p.followers
-    const finalPoints = Object.entries(byDate).sort(([a], [b]) => a.localeCompare(b))
-
-    // 5. Save all points to instagram_metrics
-    for (const [date, followers] of finalPoints) {
-      await supabaseAdmin.from('instagram_metrics').upsert({
+    const rows = Object.entries(byDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, followers]) => ({
         date,
         followers,
         following: date === today ? user.following_count : null,
         posts_count: date === today ? user.media_count : null,
         avg_reach: null,
         avg_impressions: null,
-      }, { onConflict: 'date' })
+      }))
+
+    // Delete existing rows for these dates then insert fresh — no constraint needed
+    const dates = rows.map(r => r.date)
+    await supabaseAdmin.from('instagram_metrics').delete().in('date', dates)
+    if (rows.length > 0) {
+      await supabaseAdmin.from('instagram_metrics').insert(rows)
     }
 
-    // 6. Save profile
+    // Update profile
     await supabaseAdmin.from('instagram_profile').upsert({
       username: user.username,
       full_name: user.full_name,
@@ -103,11 +102,10 @@ export async function POST(req: NextRequest) {
       followers: user.follower_count,
       following: user.following_count,
       posts: user.media_count,
-      bio: user.biography,
       avgLikes,
       avgComments,
       engagementRate,
-      historicalPoints: finalPoints.length,
+      historicalPoints: rows.length,
     })
   } catch (e: any) {
     console.error(e)
