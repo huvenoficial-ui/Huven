@@ -1,11 +1,11 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Nav from '@/components/Nav'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase-browser'
 
-export default function SettingsPage() {
+function SettingsContent() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const [connection, setConnection] = useState<any>(null)
@@ -130,5 +130,13 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <SettingsContent />
+    </Suspense>
   )
 }
