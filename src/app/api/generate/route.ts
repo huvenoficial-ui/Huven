@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const agDesc: Record<number, string> = { 1: 'levemente provocativo', 2: 'provocativo direto', 3: 'agressivo sem rodeios', 4: 'muito agressivo e acusatório', 5: 'extremo, sem filtro, choque total' }
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 4000,
       messages: [{
         role: 'user',

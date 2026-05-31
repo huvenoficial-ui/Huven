@@ -1,51 +1,35 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Nav from '@/components/Nav'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceDot } from 'recharts'
-
-const generate30d = () => {
-  const data = []
-  let val = 16200
-  for (let i = 0; i < 30; i++) {
-    val += Math.round(Math.random() * 120 + 20)
-    if (i === 5) val += 743
-    if (i === 18) val += 312
-    if (i === 24) val += 187
-    data.push({ day: i + 1, seguidores: val, label: `${i+1} mai` })
-  }
-  return data
-}
-
-const DATA = generate30d()
-const VIRAIS = [
-  { day: 6, label: 'Todo rico é endividado', gain: '+743' },
-  { day: 19, label: 'Empresário que não vende', gain: '+312' },
-  { day: 25, label: 'Cobrar barato é covardia', gain: '+187' },
-]
-
-const PROJS = {
-  atual: { '30d': '19.2k', '90d': '23.1k', '6m': '31.4k', '1a': '48.7k', taxa: '+7.4%/mês' },
-  acelerado: { '30d': '20.8k', '90d': '28.4k', '6m': '42.1k', '1a': '74.3k', taxa: '+12.1%/mês' },
-  agressivo: { '30d': '22.1k', '90d': '34.7k', '6m': '58.2k', '1a': '112k', taxa: '+18%/mês' },
-}
-
-const COMPS = [
-  { handle: '@huven.oficial', initials: 'HU', growth: 7.4, isYou: true },
-  { handle: '@alfredosoares_', initials: 'AS', growth: 9.8 },
-  { handle: '@thiagonigro', initials: 'TN', growth: 6.1 },
-  { handle: '@pablomarçal', initials: 'PM', growth: 5.2 },
-]
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function GrowthPage() {
-  const [period, setPeriod] = useState('30d')
-  const [proj, setProj] = useState<'atual' | 'acelerado' | 'agressivo'>('atual')
+  const { user, loading: authLoading } = useAuth()
+  const [metrics, setMetrics] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const metrics = [
-    { label: 'Seguidores', value: '17.4k', delta: '+1.2k este mês', up: true },
-    { label: 'Crescimento mensal', value: '+7.4%', delta: '+2.1% vs mês anterior', up: true },
-    { label: 'Alcance médio/Reel', value: '42.3k', delta: '+18% vs mês anterior', up: true },
-    { label: 'Projeção 90 dias', value: '23.1k', delta: 'no ritmo atual', up: null },
-  ]
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('instagram_metrics')
+      .select('*')
+      .order('date', { ascending: true })
+      .limit(90)
+      .then(({ data }) => { setMetrics(data || []); setLoading(false) })
+  }, [user])
+
+  const latest = metrics[metrics.length - 1]
+  const prev = metrics[metrics.length - 2]
+
+  const delta = (field: string) => {
+    if (!latest || !prev || !latest[field] || !prev[field]) return null
+    const diff = latest[field] - prev[field]
+    return diff > 0 ? `+${diff.toLocaleString('pt-BR')}` : diff.toLocaleString('pt-BR')
+  }
+
+  if (authLoading) return null
 
   return (
     <div style={{ minHeight: '100vh' }}>
@@ -55,120 +39,58 @@ export default function GrowthPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
           <div>
             <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '2rem', letterSpacing: '-0.03em' }}>Crescimento</h1>
-            <p style={{ fontSize: '0.85rem', color: '#5A5E6B', marginTop: '0.25rem', fontFamily: 'Inter, sans-serif' }}>@huven.oficial · além do Social Blade</p>
-          </div>
-          <div style={{ display: 'flex', gap: 4 }}>
-            {['7d','30d','90d','1a'].map(p => (
-              <button key={p} onClick={() => setPeriod(p)} style={{
-                fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', letterSpacing: '0.1em', padding: '4px 10px',
-                background: period === p ? 'rgba(201,162,74,0.07)' : 'none',
-                border: `1px solid ${period === p ? 'rgba(201,162,74,0.3)' : 'rgba(255,255,255,0.07)'}`,
-                color: period === p ? '#C9A24A' : '#5A5E6B', cursor: 'pointer', borderRadius: 3
-              }}>{p}</button>
-            ))}
+            <p style={{ fontSize: '0.85rem', color: '#5A5E6B', marginTop: '0.25rem', fontFamily: 'Inter, sans-serif' }}>Dados reais do teu Instagram</p>
           </div>
         </div>
 
-        {/* Metrics */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
-          {metrics.map(m => (
-            <div key={m.label} style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: '1rem 1.2rem' }}>
-              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#5A5E6B', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6 }}>{m.label}</div>
-              <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '1.6rem', letterSpacing: '-0.02em', color: m.up === null ? '#C9A24A' : '#F0EDE8' }}>{m.value}</div>
-              <div style={{ fontSize: '0.7rem', marginTop: 3, color: m.up === true ? '#44ff88' : m.up === false ? '#ff6666' : '#5A5E6B', fontFamily: 'Inter, sans-serif' }}>{m.delta}</div>
+        {!loading && metrics.length === 0 ? (
+          <div style={{ background: '#161920', border: '1px solid rgba(201,162,74,0.2)', borderRadius: 10, padding: '3rem', textAlign: 'center' }}>
+            <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '1.4rem', letterSpacing: '-0.02em', marginBottom: 8 }}>Sem dados ainda</div>
+            <p style={{ fontSize: '0.85rem', color: '#5A5E6B', fontFamily: 'Inter, sans-serif', lineHeight: 1.6, maxWidth: 420, margin: '0 auto 1.5rem' }}>
+              Conecta o teu Instagram para ver métricas reais de seguidores, alcance e crescimento. Precisas de uma conta Business ou Creator com o Instagram Graph API.
+            </p>
+            <div style={{ display: 'inline-block', padding: '0.6rem 1.2rem', background: 'rgba(201,162,74,0.07)', border: '1px solid rgba(201,162,74,0.25)', borderRadius: 6, fontSize: '0.78rem', color: '#C9A24A', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.1em' }}>
+              INSTAGRAM API — EM BREVE
             </div>
-          ))}
-        </div>
-
-        {/* Main chart */}
-        <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem', marginBottom: 14 }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 12 }}>
-            Seguidores ao longo do tempo
-            <span style={{ color: '#5A5E6B', marginLeft: 12 }}>● pontos = vídeo viral</span>
           </div>
-          <ResponsiveContainer width="100%" height={180}>
-            <LineChart data={DATA} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-              <XAxis dataKey="day" tick={{ fill: '#5A5E6B', fontSize: 10 }} tickLine={false} axisLine={false} interval={6} />
-              <YAxis tick={{ fill: '#5A5E6B', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-              <Tooltip contentStyle={{ background: '#1C1F28', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, fontSize: '0.75rem' }} labelStyle={{ color: '#5A5E6B' }} itemStyle={{ color: '#C9A24A' }} formatter={(v: any) => [v.toLocaleString('pt-BR'), 'Seguidores']} />
-              <Line type="monotone" dataKey="seguidores" stroke="#C9A24A" strokeWidth={1.5} dot={false} />
-              {VIRAIS.map(v => (
-                <ReferenceDot key={v.day} x={v.day} y={DATA[v.day - 1]?.seguidores} r={5} fill="#C9A24A" stroke="#0D0E12" strokeWidth={2} />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
-          <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
-            {VIRAIS.map(v => (
-              <div key={v.day} style={{ fontSize: '0.68rem', color: '#5A5E6B', fontFamily: 'Inter, sans-serif' }}>
-                <span style={{ color: '#C9A24A' }}>●</span> dia {v.day}: {v.label} <span style={{ color: '#44ff88' }}>{v.gain} seg</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-
-          {/* Top videos */}
-          <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem' }}>
-            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 12 }}>Vídeos que mais geraram seguidores</div>
-            {[
-              { rank: 1, title: 'Todo rico é endividado...', meta: '23.4k curtidas · há 18 dias', gain: '+743 seg' },
-              { rank: 2, title: 'Empresário que não vende...', meta: '11.2k curtidas · há 11 dias', gain: '+312 seg' },
-              { rank: 3, title: 'Cobrar barato é covardia...', meta: '7.8k curtidas · há 6 dias', gain: '+187 seg' },
-              { rank: 4, title: 'Deus não abençoa preguiça...', meta: '4.1k curtidas · há 3 dias', gain: '+94 seg' },
-            ].map(r => (
-              <div key={r.rank} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.65rem', color: '#5A5E6B', minWidth: 20 }}>{r.rank}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 500, color: '#F0EDE8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 200, fontFamily: 'Inter, sans-serif' }}>{r.title}</div>
-                  <div style={{ fontSize: '0.7rem', color: '#5A5E6B', fontFamily: 'Inter, sans-serif' }}>{r.meta}</div>
+        ) : !loading && metrics.length > 0 ? (
+          <>
+            {/* Metrics */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
+              {[
+                { label: 'Seguidores', value: latest?.followers?.toLocaleString('pt-BR') ?? '—', delta: delta('followers') },
+                { label: 'Seguindo', value: latest?.following?.toLocaleString('pt-BR') ?? '—', delta: delta('following') },
+                { label: 'Posts', value: latest?.posts_count?.toLocaleString('pt-BR') ?? '—', delta: delta('posts_count') },
+                { label: 'Alcance médio', value: latest?.avg_reach ? `${(latest.avg_reach/1000).toFixed(1)}k` : '—', delta: null },
+              ].map(m => (
+                <div key={m.label} style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: '1rem 1.2rem' }}>
+                  <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#5A5E6B', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6 }}>{m.label}</div>
+                  <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '1.6rem', letterSpacing: '-0.02em', color: '#F0EDE8' }}>{m.value}</div>
+                  {m.delta && <div style={{ fontSize: '0.7rem', marginTop: 3, color: m.delta.startsWith('+') ? '#44ff88' : '#ff6666', fontFamily: 'Inter, sans-serif' }}>{m.delta} vs ontem</div>}
                 </div>
-                <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#44ff88', whiteSpace: 'nowrap', fontFamily: 'JetBrains Mono, monospace' }}>{r.gain}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Projections */}
-          <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem' }}>
-            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 10 }}>Projeções de crescimento</div>
-            <div style={{ display: 'flex', gap: 4, marginBottom: 14 }}>
-              {(['atual','acelerado','agressivo'] as const).map(p => (
-                <button key={p} onClick={() => setProj(p)} style={{
-                  fontFamily: 'JetBrains Mono, monospace', fontSize: '0.55rem', letterSpacing: '0.08em', padding: '3px 8px',
-                  background: proj === p ? 'rgba(201,162,74,0.07)' : 'none',
-                  border: `1px solid ${proj === p ? 'rgba(201,162,74,0.3)' : 'rgba(255,255,255,0.07)'}`,
-                  color: proj === p ? '#C9A24A' : '#5A5E6B', cursor: 'pointer', borderRadius: 3
-                }}>{p}</button>
               ))}
             </div>
-            {Object.entries(PROJS[proj]).map(([k, v]) => (
-              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <span style={{ fontSize: '0.82rem', color: '#5A5E6B', fontFamily: 'Inter, sans-serif' }}>{k === 'taxa' ? 'Taxa de crescimento' : `Em ${k}`}</span>
-                <span style={{ fontSize: '0.88rem', fontWeight: 600, color: proj === 'agressivo' && k !== 'taxa' ? '#C9A24A' : '#F0EDE8', fontFamily: 'Space Grotesk, sans-serif' }}>{v}</span>
-              </div>
-            ))}
-          </div>
 
-        </div>
-
-        {/* Competitors */}
-        <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem', marginTop: 14 }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 12 }}>Comparativo — crescimento mensal</div>
-          {COMPS.map(c => (
-            <div key={c.handle} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: c.isYou ? 'rgba(201,162,74,0.15)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 600, color: c.isYou ? '#C9A24A' : '#5A5E6B', flexShrink: 0, fontFamily: 'Space Grotesk, sans-serif' }}>{c.initials}</div>
-              <div style={{ flex: 1, fontSize: '0.82rem', fontWeight: 500, color: c.isYou ? '#C9A24A' : '#F0EDE8', fontFamily: 'Inter, sans-serif' }}>{c.handle} {c.isYou && <span style={{ fontSize: '0.65rem', fontWeight: 400, color: '#5A5E6B' }}>você</span>}</div>
-              <div style={{ width: 100, height: 4, background: 'rgba(255,255,255,0.05)', borderRadius: 2, overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${(c.growth / 10) * 100}%`, background: c.isYou ? '#C9A24A' : '#378ADD', borderRadius: 2 }} />
+            {/* Chart */}
+            <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem' }}>
+              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 12 }}>
+                Seguidores ao longo do tempo
               </div>
-              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.7rem', color: c.isYou ? '#C9A24A' : '#5A5E6B', minWidth: 40, textAlign: 'right' }}>+{c.growth}%</div>
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={metrics} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="date" tick={{ fill: '#5A5E6B', fontSize: 10 }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fill: '#5A5E6B', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+                  <Tooltip contentStyle={{ background: '#1C1F28', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, fontSize: '0.75rem' }} labelStyle={{ color: '#5A5E6B' }} itemStyle={{ color: '#C9A24A' }} />
+                  <Line type="monotone" dataKey="followers" stroke="#C9A24A" strokeWidth={1.5} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
-          ))}
-          <div style={{ marginTop: 12, padding: '8px 12px', background: 'rgba(68,255,136,0.05)', border: '1px solid rgba(68,255,136,0.15)', borderRadius: 6, fontSize: '0.78rem', color: '#44ff88', lineHeight: 1.5, fontFamily: 'Inter, sans-serif' }}>
-            Você está acima de 2 dos 3 concorrentes. Para superar o Alfredo Soares, precisa de +1 vídeo viral por semana com tema de gestão empresarial.
+          </>
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem', color: '#5A5E6B', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.7rem', letterSpacing: '0.18em' }}>
+            CARREGANDO...
           </div>
-        </div>
-
+        )}
       </div>
     </div>
   )
