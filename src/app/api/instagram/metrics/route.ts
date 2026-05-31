@@ -6,38 +6,47 @@ export async function GET(req: NextRequest) {
   const username = searchParams.get('username')
 
   // Get profile — if username specified use it, else get most followers
-  const profileQuery = supabaseAdmin
+  let profileQuery = supabaseAdmin
     .from('instagram_profile')
     .select('*')
     .order('followers', { ascending: false })
     .limit(1)
 
-  if (username) profileQuery.eq('username', username)
+  if (username) profileQuery = profileQuery.eq('username', username)
 
   const { data: profile } = await profileQuery.single()
 
   if (!profile) return NextResponse.json({ profile: null, metrics: [] })
 
-  // Get metrics for this specific username (date range last 90 days)
-  // We use a range filter since metrics don't have username yet — filter by known dates only
+  // Get metrics for the last 90 days, filtered by username if the column exists
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - 90)
   const cutoffStr = cutoff.toISOString().split('T')[0]
 
-  const { data: metrics } = await supabaseAdmin
+  let metricsQuery = supabaseAdmin
     .from('instagram_metrics')
     .select('date,followers,following,posts_count')
     .gte('date', cutoffStr)
     .order('date', { ascending: true })
-    .limit(90)
+    .limit(180)
 
-  // Filter out rows that don't match this profile's follower range
-  // (rough filter to exclude other accounts' data)
-  const minF = profile.followers * 0.5
-  const maxF = profile.followers * 1.5
-  const filtered = (metrics || []).filter((m: any) =>
-    m.followers >= minF && m.followers <= maxF
-  )
+  // Filter by username if the column exists in the table
+  if (profile.username) {
+    metricsQuery = metricsQuery.eq('username', profile.username)
+  }
 
-  return NextResponse.json({ profile, metrics: filtered })
+  const { data: metrics, error: metricsError } = await metricsQuery
+
+  // If username column doesn't exist yet, fall back without filter
+  const rows = metricsError
+    ? (await supabaseAdmin
+        .from('instagram_metrics')
+        .select('date,followers,following,posts_count')
+        .gte('date', cutoffStr)
+        .order('date', { ascending: true })
+        .limit(180)
+      ).data || []
+    : metrics || []
+
+  return NextResponse.json({ profile, metrics: rows })
 }

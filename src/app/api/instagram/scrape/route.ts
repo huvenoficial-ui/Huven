@@ -44,42 +44,73 @@ export async function POST(req: NextRequest) {
       ? parseFloat((((avgLikes + avgComments) / user.follower_count) * 100).toFixed(2))
       : 0
 
-    // Build historical points from post timestamps
-    const engRate = engagementRate > 0 ? engagementRate / 100 : 0.02
-    const now = Math.floor(Date.now() / 1000)
-    const byDate: Record<string, number> = {}
-
-    for (const post of posts) {
-      if (!post.taken_at || !post.like_count) continue
-      const daysAgo = Math.floor((now - post.taken_at) / 86400)
-      if (daysAgo > 90) continue
-      const dateStr = new Date(post.taken_at * 1000).toISOString().split('T')[0]
-      const est = Math.round(post.like_count / engRate)
-      const capped = Math.min(user.follower_count * 1.25, Math.max(user.follower_count * 0.75, est))
-      byDate[dateStr] = Math.round(capped)
-    }
-
-    // Always include today with real count
     const today = new Date().toISOString().split('T')[0]
-    byDate[today] = user.follower_count
 
-    const rows = Object.entries(byDate)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, followers]) => ({
-        date,
-        followers,
-        following: date === today ? user.following_count : null,
-        posts_count: date === today ? user.media_count : null,
-        avg_reach: null,
-        avg_impressions: null,
-      }))
+    // Backfill username on any existing rows that were saved without it (legacy data)
+    await supabaseAdmin
+      .from('instagram_metrics')
+      .update({ username: user.username })
+      .is('username', null)
 
-    // Delete existing rows for these dates then insert fresh — no constraint needed
-    const dates = rows.map(r => r.date)
-    await supabaseAdmin.from('instagram_metrics').delete().in('date', dates)
-    if (rows.length > 0) {
-      await supabaseAdmin.from('instagram_metrics').insert(rows)
+    // Determine if this is the first sync using the profile's last_synced field
+    const { data: existingProfile } = await supabaseAdmin
+      .from('instagram_profile')
+      .select('last_synced')
+      .eq('username', user.username)
+      .single()
+
+    const isFirstSync = !existingProfile?.last_synced
+
+    // Delete today's row for this account and re-insert with fresh real data
+    await supabaseAdmin.from('instagram_metrics').delete()
+      .eq('date', today)
+      .eq('username', user.username)
+
+    const todayRow = {
+      date: today,
+      username: user.username,
+      followers: user.follower_count,
+      following: user.following_count,
+      posts_count: user.media_count,
+      avg_reach: null,
+      avg_impressions: null,
     }
+
+    let rows: any[] = [todayRow]
+
+    // Seed estimated history only on first-ever sync for this account
+    if (isFirstSync) {
+      const engRate = engagementRate > 0 ? engagementRate / 100 : 0.02
+      const now = Math.floor(Date.now() / 1000)
+      const byDate: Record<string, number> = {}
+
+      for (const post of posts) {
+        if (!post.taken_at || !post.like_count) continue
+        const daysAgo = Math.floor((now - post.taken_at) / 86400)
+        if (daysAgo > 90 || daysAgo === 0) continue
+        const dateStr = new Date(post.taken_at * 1000).toISOString().split('T')[0]
+        const est = Math.round(post.like_count / engRate)
+        // Cap at ±30% to avoid wild outliers from viral posts
+        const capped = Math.min(user.follower_count * 1.3, Math.max(user.follower_count * 0.7, est))
+        byDate[dateStr] = Math.round(capped)
+      }
+
+      const historicalRows = Object.entries(byDate)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, followers]) => ({
+          date,
+          username: user.username,
+          followers,
+          following: null,
+          posts_count: null,
+          avg_reach: null,
+          avg_impressions: null,
+        }))
+
+      rows = [...historicalRows, todayRow]
+    }
+
+    await supabaseAdmin.from('instagram_metrics').insert(rows)
 
     // Update profile
     await supabaseAdmin.from('instagram_profile').upsert({
@@ -106,6 +137,7 @@ export async function POST(req: NextRequest) {
       avgComments,
       engagementRate,
       historicalPoints: rows.length,
+      seeded: isFirstSync,
     })
   } catch (e: any) {
     console.error(e)

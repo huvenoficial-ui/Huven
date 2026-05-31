@@ -34,6 +34,59 @@ export default function VideosPage() {
     setQueue(prev => [...prev, ...newItems])
   }, [])
 
+  const extractAudio = async (file: File): Promise<string | null> => {
+    try {
+      const arrayBuffer = await file.arrayBuffer()
+      const audioCtx = new AudioContext({ sampleRate: 16000 })
+      let audioBuffer: AudioBuffer
+      try {
+        audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
+      } catch {
+        await audioCtx.close()
+        return null
+      }
+      await audioCtx.close()
+
+      // Mix down to mono, cap at 90 seconds
+      const maxSamples = 16000 * 90
+      const channel = audioBuffer.getChannelData(0)
+      const samples = channel.slice(0, maxSamples)
+
+      // Encode to WAV (PCM 16-bit mono 16kHz)
+      const wavBuffer = new ArrayBuffer(44 + samples.length * 2)
+      const view = new DataView(wavBuffer)
+      const write = (offset: number, str: string) => {
+        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i))
+      }
+      write(0, 'RIFF')
+      view.setUint32(4, 36 + samples.length * 2, true)
+      write(8, 'WAVE')
+      write(12, 'fmt ')
+      view.setUint32(16, 16, true)
+      view.setUint16(20, 1, true)   // PCM
+      view.setUint16(22, 1, true)   // mono
+      view.setUint32(24, 16000, true)
+      view.setUint32(28, 32000, true)
+      view.setUint16(32, 2, true)
+      view.setUint16(34, 16, true)
+      write(36, 'data')
+      view.setUint32(40, samples.length * 2, true)
+      let off = 44
+      for (let i = 0; i < samples.length; i++) {
+        const s = Math.max(-1, Math.min(1, samples[i]))
+        view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7fff, true)
+        off += 2
+      }
+
+      const bytes = new Uint8Array(wavBuffer)
+      let binary = ''
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+      return btoa(binary)
+    } catch {
+      return null
+    }
+  }
+
   const extractFrames = async (file: File): Promise<string[]> => {
     return new Promise((resolve) => {
       const reader = new FileReader()
@@ -95,13 +148,16 @@ export default function VideosPage() {
     for (const item of queue.filter(q => q.status === 'pending')) {
       setQueue(prev => prev.map(q => q.id === item.id ? { ...q, status: 'analyzing' } : q))
       try {
-        const frames = await extractFrames(item.file)
+        const [frames, audioBase64] = await Promise.all([
+          extractFrames(item.file),
+          extractAudio(item.file),
+        ])
         if (frames.length === 0) throw new Error('Não foi possível extrair frames')
 
         const res = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ frames, filename: item.file.name })
+          body: JSON.stringify({ frames, filename: item.file.name, audioBase64 })
         })
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}))

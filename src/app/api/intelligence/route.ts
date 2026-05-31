@@ -20,8 +20,11 @@ export async function POST() {
       supabaseAdmin.from('leads').select('stage,score,tags').limit(50),
     ])
 
-    if (!videos?.length && !profile) {
-      return NextResponse.json({ error: 'Sem dados suficientes. Analisa vídeos e liga o Instagram primeiro.' }, { status: 400 })
+    if (!profile) {
+      return NextResponse.json({ error: 'Liga o teu Instagram primeiro em Configurações para gerar análise estratégica.' }, { status: 400 })
+    }
+    if (!videos?.length) {
+      return NextResponse.json({ error: 'Analisa pelo menos 1 vídeo antes de gerar a análise estratégica. A IA precisa de dados reais do teu conteúdo.' }, { status: 400 })
     }
 
     const avgScore = videos?.length ? (videos.reduce((s, v) => s + (v.viral_score || 0), 0) / videos.length).toFixed(1) : '—'
