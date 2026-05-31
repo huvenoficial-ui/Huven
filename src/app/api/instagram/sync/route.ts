@@ -74,7 +74,7 @@ export async function POST() {
           post: post.caption?.slice(0, 80) || post.id,
           notes: '',
           tags: [],
-        }, { onConflict: 'handle,text' }).catch(() => {})
+        }, { onConflict: 'handle,text' })
       }
     }
 
