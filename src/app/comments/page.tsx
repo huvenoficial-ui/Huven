@@ -25,10 +25,10 @@ const SAMPLE: Comment[] = [
 ]
 
 const COLS: { key: Category; label: string; color: string; bg: string }[] = [
-  { key: 'lead', label: 'Lead quente', color: '#44ff88', bg: 'rgba(68,255,136,0.05)' },
-  { key: 'objection', label: 'Objeção', color: '#FFE500', bg: 'rgba(255,229,0,0.05)' },
-  { key: 'engagement', label: 'Engajamento', color: '#44aaff', bg: 'rgba(68,170,255,0.05)' },
-  { key: 'ignore', label: 'Ignorar', color: '#555', bg: 'rgba(255,255,255,0.02)' },
+  { key: 'lead', label: 'Lead quente', color: '#44ff88', bg: 'rgba(68,255,136,0.04)' },
+  { key: 'objection', label: 'Objeção', color: '#C9A24A', bg: 'rgba(201,162,74,0.04)' },
+  { key: 'engagement', label: 'Engajamento', color: '#44aaff', bg: 'rgba(68,170,255,0.04)' },
+  { key: 'ignore', label: 'Ignorar', color: '#5A5E6B', bg: 'rgba(255,255,255,0.02)' },
 ]
 
 export default function CommentsPage() {
@@ -74,8 +74,8 @@ export default function CommentsPage() {
       <div style={{ padding: '2rem' }}>
         <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', maxWidth: 1200, margin: '0 auto 1.5rem' }}>
           <div>
-            <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2rem', letterSpacing: '0.04em' }}>Comentários — Kanban</h1>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>IA classifica automaticamente em leads, objeções e engajamento</p>
+            <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '2rem', letterSpacing: '-0.03em' }}>Comentários — Kanban</h1>
+            <p style={{ fontSize: '0.85rem', color: '#5A5E6B', marginTop: '0.25rem', fontFamily: 'Inter, sans-serif' }}>IA classifica automaticamente em leads, objeções e engajamento</p>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <textarea
@@ -83,15 +83,15 @@ export default function CommentsPage() {
               onChange={e => setInput(e.target.value)}
               placeholder="Cole comentários aqui (um por linha)..."
               style={{
-                background: '#141414', border: '1px solid rgba(255,255,255,0.1)',
-                color: '#f0f0eb', fontFamily: 'DM Sans, sans-serif', fontSize: '0.82rem',
-                padding: '0.6rem 0.9rem', outline: 'none', width: 280, height: 72, resize: 'none'
+                background: '#161920', border: '1px solid rgba(255,255,255,0.1)',
+                color: '#F0EDE8', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem',
+                padding: '0.6rem 0.9rem', outline: 'none', width: 280, height: 72, resize: 'none', borderRadius: 4
               }}
             />
             <button onClick={analyzeComments} disabled={analyzing || !input.trim()} style={{
-              fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.9rem', letterSpacing: '0.1em',
-              padding: '0 1.2rem', background: analyzing ? '#1a1a1a' : '#FFE500',
-              color: analyzing ? '#555' : '#080808', border: 'none', cursor: 'pointer', alignSelf: 'stretch'
+              fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '0.85rem', letterSpacing: '0.05em',
+              padding: '0 1.2rem', background: analyzing ? '#1C1F28' : '#C9A24A',
+              color: analyzing ? '#5A5E6B' : '#0D0E12', border: 'none', cursor: 'pointer', alignSelf: 'stretch', borderRadius: 4
             }}>
               {analyzing ? 'ANALISANDO...' : '⚡ CLASSIFICAR'}
             </button>
@@ -104,29 +104,29 @@ export default function CommentsPage() {
             return (
               <div key={col.key} style={{ background: col.bg, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: 10, minHeight: 300 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: col.color }}>{col.label}</div>
-                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.58rem', color: '#555', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 999, padding: '1px 7px' }}>{colComments.length}</div>
+                  <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.18em', color: col.color }}>{col.label}</div>
+                  <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.58rem', color: '#5A5E6B', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 999, padding: '1px 7px' }}>{colComments.length}</div>
                 </div>
                 {colComments.map(c => (
-                  <div key={c.id} style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, padding: '9px 10px', marginBottom: 8 }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 500, color: '#f0f0eb', marginBottom: 3 }}>{c.handle}</div>
-                    <div style={{ fontSize: '0.78rem', color: '#888', lineHeight: 1.45, marginBottom: 6 }}>{c.text}</div>
-                    {c.post && <div style={{ fontSize: '0.65rem', color: '#444', fontFamily: 'DM Mono, monospace', marginBottom: 4 }}>→ {c.post}</div>}
+                  <div key={c.id} style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, padding: '9px 10px', marginBottom: 8 }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#F0EDE8', marginBottom: 3, fontFamily: 'Inter, sans-serif' }}>{c.handle}</div>
+                    <div style={{ fontSize: '0.78rem', color: '#5A5E6B', lineHeight: 1.45, marginBottom: 6, fontFamily: 'Inter, sans-serif' }}>{c.text}</div>
+                    {c.post && <div style={{ fontSize: '0.65rem', color: '#3A3E4A', fontFamily: 'JetBrains Mono, monospace', marginBottom: 4 }}>→ {c.post}</div>}
                     {col.key !== 'ignore' && (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div style={{ fontSize: '0.65rem', color: col.color }}>Temp: {c.score.toFixed(1)}/10</div>
+                        <div style={{ fontSize: '0.65rem', color: col.color, fontFamily: 'JetBrains Mono, monospace' }}>Temp: {c.score.toFixed(1)}/10</div>
                         <button onClick={() => generateReply(c)} disabled={replyId === c.id} style={{
-                          fontSize: '0.65rem', color: '#44aaff', background: 'none', border: 'none', cursor: 'pointer', padding: 0
+                          fontSize: '0.65rem', color: '#44aaff', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'Inter, sans-serif'
                         }}>
                           {replyId === c.id ? 'Gerando...' : '↗ Responder com IA'}
                         </button>
                       </div>
                     )}
                     {c.reply && (
-                      <div style={{ marginTop: 8, padding: '6px 8px', background: 'rgba(68,170,255,0.06)', border: '1px solid rgba(68,170,255,0.15)', borderRadius: 4, fontSize: '0.75rem', color: '#88bbff', lineHeight: 1.5 }}>
-                        <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.55rem', color: '#44aaff', marginBottom: 3 }}>RESPOSTA SUGERIDA:</div>
+                      <div style={{ marginTop: 8, padding: '6px 8px', background: 'rgba(68,170,255,0.06)', border: '1px solid rgba(68,170,255,0.15)', borderRadius: 4, fontSize: '0.75rem', color: '#88bbff', lineHeight: 1.5, fontFamily: 'Inter, sans-serif' }}>
+                        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.55rem', color: '#44aaff', marginBottom: 3 }}>RESPOSTA SUGERIDA:</div>
                         {c.reply}
-                        <button onClick={() => navigator.clipboard.writeText(c.reply!)} style={{ display: 'block', marginTop: 4, fontSize: '0.6rem', color: '#44aaff', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Copiar</button>
+                        <button onClick={() => navigator.clipboard.writeText(c.reply!)} style={{ display: 'block', marginTop: 4, fontSize: '0.6rem', color: '#44aaff', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'Inter, sans-serif' }}>Copiar</button>
                       </div>
                     )}
                   </div>

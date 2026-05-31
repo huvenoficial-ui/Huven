@@ -36,30 +36,30 @@ export default function CompetitorsPage() {
       <div style={{ padding: '2rem', maxWidth: 1000, margin: '0 auto' }}>
         <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div>
-            <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2rem', letterSpacing: '0.04em' }}>Concorrentes</h1>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>IA mapeia temas e identifica gaps automaticamente</p>
+            <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '2rem', letterSpacing: '-0.03em' }}>Concorrentes</h1>
+            <p style={{ fontSize: '0.85rem', color: '#5A5E6B', marginTop: '0.25rem', fontFamily: 'Inter, sans-serif' }}>IA mapeia temas e identifica gaps automaticamente</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <input value={newHandle} onChange={e => setNewHandle(e.target.value)} placeholder="@handle do concorrente" style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.1)', color: '#f0f0eb', fontFamily: 'DM Sans, sans-serif', fontSize: '0.82rem', padding: '0.6rem 0.9rem', outline: 'none', width: 220 }} onKeyDown={e => e.key === 'Enter' && addComp()} />
-            <button onClick={addComp} disabled={analyzing} style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.9rem', letterSpacing: '0.1em', padding: '0 1.2rem', background: '#FFE500', color: '#080808', border: 'none', cursor: 'pointer' }}>
+            <input value={newHandle} onChange={e => setNewHandle(e.target.value)} placeholder="@handle do concorrente" style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.1)', color: '#F0EDE8', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', padding: '0.6rem 0.9rem', outline: 'none', width: 220, borderRadius: 4 }} onKeyDown={e => e.key === 'Enter' && addComp()} />
+            <button onClick={addComp} disabled={analyzing} style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '0.85rem', letterSpacing: '0.05em', padding: '0 1.2rem', background: '#C9A24A', color: '#0D0E12', border: 'none', cursor: 'pointer', borderRadius: 4 }}>
               {analyzing ? '...' : '+ ADICIONAR'}
             </button>
           </div>
         </div>
 
-        <div style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem', marginBottom: 16 }}>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: '#FFE500', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>Perfis monitorados</div>
+        <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem', marginBottom: 16 }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 14 }}>Perfis monitorados</div>
           {comps.map(c => (
             <div key={c.handle} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 500, color: '#888', flexShrink: 0 }}>{c.initials}</div>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 600, color: '#5A5E6B', flexShrink: 0, fontFamily: 'Space Grotesk, sans-serif' }}>{c.initials}</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.88rem', fontWeight: 500, color: '#f0f0eb', marginBottom: 3 }}>{c.handle}</div>
-                <div style={{ fontSize: '0.78rem', color: '#555', marginBottom: 6 }}>Temas: {c.temas}</div>
+                <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#F0EDE8', marginBottom: 3, fontFamily: 'Inter, sans-serif' }}>{c.handle}</div>
+                <div style={{ fontSize: '0.78rem', color: '#5A5E6B', marginBottom: 6, fontFamily: 'Inter, sans-serif' }}>Temas: {c.temas}</div>
                 {c.gaps.length > 0 && (
                   <div>
-                    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.55rem', color: '#555', letterSpacing: '0.1em', textTransform: 'uppercase', marginRight: 6 }}>Gaps detectados:</span>
+                    <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.55rem', color: '#5A5E6B', letterSpacing: '0.15em', textTransform: 'uppercase', marginRight: 6 }}>Gaps detectados:</span>
                     {c.gaps.map(g => (
-                      <span key={g} style={{ display: 'inline-block', fontSize: '0.7rem', padding: '2px 8px', borderRadius: 4, background: 'rgba(255,229,0,0.07)', border: '1px solid rgba(255,229,0,0.2)', color: '#FFE500', marginRight: 4, marginTop: 2 }}>{g}</span>
+                      <span key={g} style={{ display: 'inline-block', fontSize: '0.7rem', padding: '2px 8px', borderRadius: 4, background: 'rgba(201,162,74,0.07)', border: '1px solid rgba(201,162,74,0.2)', color: '#C9A24A', marginRight: 4, marginTop: 2, fontFamily: 'Inter, sans-serif' }}>{g}</span>
                     ))}
                   </div>
                 )}
@@ -68,13 +68,13 @@ export default function CompetitorsPage() {
           ))}
         </div>
 
-        <div style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem' }}>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: '#FFE500', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>
+        <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem' }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 12 }}>
             {OPPORTUNITIES.length} temas que nenhum concorrente domina — oportunidade sua
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {OPPORTUNITIES.map(o => (
-              <span key={o} style={{ fontSize: '0.78rem', padding: '5px 12px', border: '1px solid rgba(255,229,0,0.25)', background: 'rgba(255,229,0,0.05)', color: '#FFE500', borderRadius: 4, cursor: 'pointer' }}>{o}</span>
+              <span key={o} style={{ fontSize: '0.78rem', padding: '5px 12px', border: '1px solid rgba(201,162,74,0.25)', background: 'rgba(201,162,74,0.05)', color: '#C9A24A', borderRadius: 4, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>{o}</span>
             ))}
           </div>
         </div>

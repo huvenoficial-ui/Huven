@@ -93,9 +93,11 @@ export default function VideosPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ frames, filename: item.file.name })
         })
-        if (!res.ok) throw new Error(`Erro ${res.status}`)
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}))
+          throw new Error(errData.error || `Erro ${res.status}`)
+        }
         const analysis: VideoAnalysis = await res.json()
-
         setQueue(prev => prev.map(q => q.id === item.id ? { ...q, status: 'done', analysis } : q))
       } catch (e: any) {
         setQueue(prev => prev.map(q => q.id === item.id ? { ...q, status: 'error', error: e.message } : q))
@@ -114,14 +116,15 @@ export default function VideosPage() {
 
         <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div>
-            <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2rem', letterSpacing: '0.04em' }}>Análise de Vídeos</h1>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>A IA aprende padrões virais de cada vídeo analisado</p>
+            <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '2rem', letterSpacing: '-0.03em' }}>Análise de Vídeos</h1>
+            <p style={{ fontSize: '0.85rem', color: '#5A5E6B', marginTop: '0.25rem', fontFamily: 'Inter, sans-serif' }}>A IA aprende padrões virais de cada vídeo analisado</p>
           </div>
           {pending > 0 && (
             <button onClick={analyzeAll} disabled={analyzing} style={{
-              fontFamily: 'Bebas Neue, sans-serif', fontSize: '1rem', letterSpacing: '0.12em',
-              padding: '0.7rem 1.5rem', background: analyzing ? '#1a1a1a' : '#FFE500',
-              color: analyzing ? '#555' : '#080808', border: 'none', cursor: analyzing ? 'not-allowed' : 'pointer'
+              fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '0.9rem', letterSpacing: '0.05em',
+              padding: '0.7rem 1.5rem', background: analyzing ? '#1C1F28' : '#C9A24A',
+              color: analyzing ? '#5A5E6B' : '#0D0E12', border: 'none', cursor: analyzing ? 'not-allowed' : 'pointer',
+              borderRadius: 4
             }}>
               {analyzing ? 'ANALISANDO...' : `⚡ ANALISAR ${pending} VÍDEO${pending > 1 ? 'S' : ''}`}
             </button>
@@ -134,18 +137,18 @@ export default function VideosPage() {
           onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files) }}
           onClick={() => document.getElementById('fileInput')?.click()}
           style={{
-            border: '2px dashed rgba(255,255,255,0.12)', padding: '2.5rem 2rem',
-            textAlign: 'center', cursor: 'pointer', background: '#101010',
+            border: '2px dashed rgba(201,162,74,0.2)', padding: '2.5rem 2rem',
+            textAlign: 'center', cursor: 'pointer', background: '#111318',
             borderRadius: 8, marginBottom: '1.5rem', transition: 'all 0.2s'
           }}
         >
           <input id="fileInput" type="file" accept="video/*" multiple style={{ display: 'none' }}
             onChange={e => e.target.files && handleFiles(e.target.files)} />
-          <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2.5rem', color: '#FFE500', lineHeight: 1 }}>▶</div>
-          <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem', letterSpacing: '0.06em', margin: '0.6rem 0 0.3rem' }}>
+          <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '2rem', color: '#C9A24A', lineHeight: 1 }}>▶</div>
+          <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '1.1rem', letterSpacing: '-0.01em', margin: '0.6rem 0 0.3rem' }}>
             Solte os vídeos aqui ou clique para selecionar
           </div>
-          <div style={{ fontSize: '0.8rem', color: '#555', lineHeight: 1.6 }}>
+          <div style={{ fontSize: '0.8rem', color: '#5A5E6B', lineHeight: 1.6, fontFamily: 'Inter, sans-serif' }}>
             MP4, MOV — Reels virais que você quer que a IA aprenda
           </div>
         </div>
@@ -154,26 +157,27 @@ export default function VideosPage() {
         {queue.map(item => (
           <div key={item.id}>
             <div style={{
-              background: '#141414', border: '1px solid rgba(255,255,255,0.07)',
+              background: '#161920', border: '1px solid rgba(255,255,255,0.07)',
               padding: '1rem 1.2rem', display: 'flex', alignItems: 'center', gap: 12,
-              marginBottom: item.analysis ? 0 : 8, borderBottom: item.analysis ? 'none' : undefined
+              marginBottom: item.analysis ? 0 : 8, borderBottom: item.analysis ? 'none' : undefined,
+              borderRadius: item.analysis ? '8px 8px 0 0' : 8
             }}>
               <div style={{
-                width: 44, height: 44, background: '#1a1a1a',
+                width: 44, height: 44, background: '#1C1F28',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0, fontSize: '1.2rem'
+                flexShrink: 0, fontSize: '1.2rem', borderRadius: 4, color: '#C9A24A'
               }}>▶</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>{item.file.name}</div>
-                <div style={{ fontSize: '0.7rem', color: '#555', fontFamily: 'DM Mono, monospace' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 500, fontFamily: 'Inter, sans-serif', color: '#F0EDE8' }}>{item.file.name}</div>
+                <div style={{ fontSize: '0.7rem', color: '#5A5E6B', fontFamily: 'JetBrains Mono, monospace' }}>
                   {(item.file.size / 1024 / 1024).toFixed(1)} MB · {item.file.type}
                 </div>
               </div>
               <div style={{
-                fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', letterSpacing: '0.1em',
-                textTransform: 'uppercase', padding: '3px 10px', border: '1px solid',
-                borderColor: item.status === 'done' ? 'rgba(68,255,136,0.3)' : item.status === 'error' ? 'rgba(255,68,68,0.3)' : item.status === 'analyzing' ? 'rgba(255,229,0,0.3)' : 'rgba(255,255,255,0.07)',
-                color: item.status === 'done' ? '#44ff88' : item.status === 'error' ? '#ff6666' : item.status === 'analyzing' ? '#FFE500' : '#555',
+                fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', letterSpacing: '0.1em',
+                textTransform: 'uppercase', padding: '3px 10px', border: '1px solid', borderRadius: 3,
+                borderColor: item.status === 'done' ? 'rgba(68,255,136,0.3)' : item.status === 'error' ? 'rgba(255,68,68,0.3)' : item.status === 'analyzing' ? 'rgba(201,162,74,0.3)' : 'rgba(255,255,255,0.07)',
+                color: item.status === 'done' ? '#44ff88' : item.status === 'error' ? '#ff6666' : item.status === 'analyzing' ? '#C9A24A' : '#5A5E6B',
               }}>
                 {item.status === 'done' ? 'ANALISADO ✓' : item.status === 'error' ? 'ERRO' : item.status === 'analyzing' ? 'ANALISANDO...' : 'AGUARDANDO'}
               </div>
@@ -181,43 +185,44 @@ export default function VideosPage() {
 
             {item.analysis && (
               <div style={{
-                background: '#101010', border: '1px solid rgba(255,255,255,0.07)',
-                borderTop: 'none', padding: '1.2rem', marginBottom: 8
+                background: '#111318', border: '1px solid rgba(255,255,255,0.07)',
+                borderTop: 'none', padding: '1.2rem', marginBottom: 8,
+                borderRadius: '0 0 8px 8px'
               }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                   <div>
-                    <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.58rem', color: '#FFE500', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>Gancho</div>
-                    <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.1rem', letterSpacing: '0.04em', lineHeight: 1.2, marginBottom: 12 }}>{item.analysis.gancho}</div>
-                    <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.58rem', color: '#FFE500', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>Tema</div>
-                    <div style={{ fontSize: '0.82rem', color: '#888', marginBottom: 12 }}>{item.analysis.tema}</div>
-                    <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.58rem', color: '#FFE500', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 6 }}>Padrões detectados</div>
+                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.58rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6 }}>Gancho</div>
+                    <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: '1.05rem', letterSpacing: '-0.01em', lineHeight: 1.25, marginBottom: 12 }}>{item.analysis.gancho}</div>
+                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.58rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 4 }}>Tema</div>
+                    <div style={{ fontSize: '0.82rem', color: '#5A5E6B', marginBottom: 12, fontFamily: 'Inter, sans-serif' }}>{item.analysis.tema}</div>
+                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.58rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6 }}>Padrões detectados</div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                       {item.analysis.padroes?.map(p => (
-                        <span key={p} style={{ fontSize: '0.7rem', padding: '2px 8px', border: '1px solid rgba(255,229,0,0.25)', background: 'rgba(255,229,0,0.07)', color: '#FFE500', borderRadius: 4 }}>{p}</span>
+                        <span key={p} style={{ fontSize: '0.7rem', padding: '2px 8px', border: '1px solid rgba(201,162,74,0.25)', background: 'rgba(201,162,74,0.07)', color: '#C9A24A', borderRadius: 4, fontFamily: 'Inter, sans-serif' }}>{p}</span>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.58rem', color: '#FFE500', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>
+                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.58rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 8 }}>
                       Score viral — {item.analysis.potencial?.score}/10
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
                       {Object.entries(item.analysis.pilares || {}).map(([k, v]) => (
-                        <div key={k} style={{ background: '#141414', padding: '8px 10px', textAlign: 'center', borderRadius: 4 }}>
-                          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.52rem', color: '#555', textTransform: 'uppercase', marginBottom: 2 }}>{k}</div>
-                          <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem', color: '#FFE500' }}>{v as number}</div>
+                        <div key={k} style={{ background: '#161920', padding: '8px 10px', textAlign: 'center', borderRadius: 4 }}>
+                          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.52rem', color: '#5A5E6B', textTransform: 'uppercase', marginBottom: 2 }}>{k}</div>
+                          <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '1.2rem', letterSpacing: '-0.02em', color: '#C9A24A' }}>{v as number}</div>
                         </div>
                       ))}
                     </div>
-                    <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.58rem', color: '#FFE500', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>Insight estratégico</div>
-                    <div style={{ fontSize: '0.8rem', color: '#888', lineHeight: 1.6 }}>{item.analysis.insights}</div>
+                    <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.58rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 4 }}>Insight estratégico</div>
+                    <div style={{ fontSize: '0.8rem', color: '#5A5E6B', lineHeight: 1.6, fontFamily: 'Inter, sans-serif' }}>{item.analysis.insights}</div>
                   </div>
                 </div>
               </div>
             )}
 
             {item.error && (
-              <div style={{ background: 'rgba(255,68,68,0.05)', border: '1px solid rgba(255,68,68,0.2)', borderTop: 'none', padding: '0.75rem 1.2rem', fontSize: '0.78rem', color: '#ff8888', marginBottom: 8 }}>
+              <div style={{ background: 'rgba(255,68,68,0.05)', border: '1px solid rgba(255,68,68,0.2)', borderTop: 'none', padding: '0.75rem 1.2rem', fontSize: '0.78rem', color: '#ff8888', marginBottom: 8, borderRadius: '0 0 8px 8px', fontFamily: 'Inter, sans-serif' }}>
                 {item.error}
               </div>
             )}

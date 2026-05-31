@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }))
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1500,
       messages: [{
         role: 'user',
@@ -69,6 +69,6 @@ Responda SOMENTE com este JSON preenchido, sem texto antes ou depois:
     return NextResponse.json(analysis)
   } catch (e: any) {
     console.error('Analyze error:', e)
-    return NextResponse.json({ error: e.message }, { status: 500 })
+    return NextResponse.json({ error: e.message, detail: e?.status || e?.code || '' }, { status: 500 })
   }
 }

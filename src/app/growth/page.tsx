@@ -39,7 +39,6 @@ const COMPS = [
 export default function GrowthPage() {
   const [period, setPeriod] = useState('30d')
   const [proj, setProj] = useState<'atual' | 'acelerado' | 'agressivo'>('atual')
-  const [tooltip, setTooltip] = useState<{ day: number; label: string; gain: string } | null>(null)
 
   const metrics = [
     { label: 'Seguidores', value: '17.4k', delta: '+1.2k este mês', up: true },
@@ -55,16 +54,16 @@ export default function GrowthPage() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
           <div>
-            <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2rem', letterSpacing: '0.04em' }}>Crescimento</h1>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>@huven.oficial · além do Social Blade</p>
+            <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '2rem', letterSpacing: '-0.03em' }}>Crescimento</h1>
+            <p style={{ fontSize: '0.85rem', color: '#5A5E6B', marginTop: '0.25rem', fontFamily: 'Inter, sans-serif' }}>@huven.oficial · além do Social Blade</p>
           </div>
           <div style={{ display: 'flex', gap: 4 }}>
             {['7d','30d','90d','1a'].map(p => (
               <button key={p} onClick={() => setPeriod(p)} style={{
-                fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', letterSpacing: '0.1em', padding: '4px 10px',
-                background: period === p ? 'rgba(255,229,0,0.07)' : 'none',
-                border: `1px solid ${period === p ? 'rgba(255,229,0,0.3)' : 'rgba(255,255,255,0.07)'}`,
-                color: period === p ? '#FFE500' : '#555', cursor: 'pointer'
+                fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', letterSpacing: '0.1em', padding: '4px 10px',
+                background: period === p ? 'rgba(201,162,74,0.07)' : 'none',
+                border: `1px solid ${period === p ? 'rgba(201,162,74,0.3)' : 'rgba(255,255,255,0.07)'}`,
+                color: period === p ? '#C9A24A' : '#5A5E6B', cursor: 'pointer', borderRadius: 3
               }}>{p}</button>
             ))}
           </div>
@@ -73,35 +72,35 @@ export default function GrowthPage() {
         {/* Metrics */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
           {metrics.map(m => (
-            <div key={m.label} style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: '1rem 1.2rem' }}>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: '#555', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>{m.label}</div>
-              <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.6rem', color: m.up === null ? '#FFE500' : '#f0f0eb', letterSpacing: '0.04em' }}>{m.value}</div>
-              <div style={{ fontSize: '0.7rem', marginTop: 3, color: m.up === true ? '#44ff88' : m.up === false ? '#ff6666' : '#555' }}>{m.delta}</div>
+            <div key={m.label} style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: '1rem 1.2rem' }}>
+              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#5A5E6B', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 6 }}>{m.label}</div>
+              <div style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: '1.6rem', letterSpacing: '-0.02em', color: m.up === null ? '#C9A24A' : '#F0EDE8' }}>{m.value}</div>
+              <div style={{ fontSize: '0.7rem', marginTop: 3, color: m.up === true ? '#44ff88' : m.up === false ? '#ff6666' : '#5A5E6B', fontFamily: 'Inter, sans-serif' }}>{m.delta}</div>
             </div>
           ))}
         </div>
 
         {/* Main chart */}
-        <div style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem', marginBottom: 14 }}>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: '#FFE500', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>
+        <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem', marginBottom: 14 }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 12 }}>
             Seguidores ao longo do tempo
-            <span style={{ color: '#555', marginLeft: 12 }}>● pontos = vídeo viral</span>
+            <span style={{ color: '#5A5E6B', marginLeft: 12 }}>● pontos = vídeo viral</span>
           </div>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={DATA} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-              <XAxis dataKey="day" tick={{ fill: '#555', fontSize: 10 }} tickLine={false} axisLine={false} interval={6} />
-              <YAxis tick={{ fill: '#555', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-              <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, fontSize: '0.75rem' }} labelStyle={{ color: '#888' }} itemStyle={{ color: '#FFE500' }} formatter={(v: any) => [v.toLocaleString('pt-BR'), 'Seguidores']} />
-              <Line type="monotone" dataKey="seguidores" stroke="#FFE500" strokeWidth={1.5} dot={false} />
+              <XAxis dataKey="day" tick={{ fill: '#5A5E6B', fontSize: 10 }} tickLine={false} axisLine={false} interval={6} />
+              <YAxis tick={{ fill: '#5A5E6B', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+              <Tooltip contentStyle={{ background: '#1C1F28', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, fontSize: '0.75rem' }} labelStyle={{ color: '#5A5E6B' }} itemStyle={{ color: '#C9A24A' }} formatter={(v: any) => [v.toLocaleString('pt-BR'), 'Seguidores']} />
+              <Line type="monotone" dataKey="seguidores" stroke="#C9A24A" strokeWidth={1.5} dot={false} />
               {VIRAIS.map(v => (
-                <ReferenceDot key={v.day} x={v.day} y={DATA[v.day - 1]?.seguidores} r={5} fill="#FFE500" stroke="#080808" strokeWidth={2} />
+                <ReferenceDot key={v.day} x={v.day} y={DATA[v.day - 1]?.seguidores} r={5} fill="#C9A24A" stroke="#0D0E12" strokeWidth={2} />
               ))}
             </LineChart>
           </ResponsiveContainer>
           <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
             {VIRAIS.map(v => (
-              <div key={v.day} style={{ fontSize: '0.68rem', color: '#555' }}>
-                <span style={{ color: '#FFE500' }}>●</span> dia {v.day}: {v.label} <span style={{ color: '#44ff88' }}>{v.gain} seg</span>
+              <div key={v.day} style={{ fontSize: '0.68rem', color: '#5A5E6B', fontFamily: 'Inter, sans-serif' }}>
+                <span style={{ color: '#C9A24A' }}>●</span> dia {v.day}: {v.label} <span style={{ color: '#44ff88' }}>{v.gain} seg</span>
               </div>
             ))}
           </div>
@@ -110,8 +109,8 @@ export default function GrowthPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
 
           {/* Top videos */}
-          <div style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem' }}>
-            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: '#FFE500', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>Vídeos que mais geraram seguidores</div>
+          <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem' }}>
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 12 }}>Vídeos que mais geraram seguidores</div>
             {[
               { rank: 1, title: 'Todo rico é endividado...', meta: '23.4k curtidas · há 18 dias', gain: '+743 seg' },
               { rank: 2, title: 'Empresário que não vende...', meta: '11.2k curtidas · há 11 dias', gain: '+312 seg' },
@@ -119,33 +118,33 @@ export default function GrowthPage() {
               { rank: 4, title: 'Deus não abençoa preguiça...', meta: '4.1k curtidas · há 3 dias', gain: '+94 seg' },
             ].map(r => (
               <div key={r.rank} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.65rem', color: '#555', minWidth: 20 }}>{r.rank}</div>
+                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.65rem', color: '#5A5E6B', minWidth: 20 }}>{r.rank}</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 500, color: '#f0f0eb', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 200 }}>{r.title}</div>
-                  <div style={{ fontSize: '0.7rem', color: '#555' }}>{r.meta}</div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 500, color: '#F0EDE8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 200, fontFamily: 'Inter, sans-serif' }}>{r.title}</div>
+                  <div style={{ fontSize: '0.7rem', color: '#5A5E6B', fontFamily: 'Inter, sans-serif' }}>{r.meta}</div>
                 </div>
-                <div style={{ fontSize: '0.8rem', fontWeight: 500, color: '#44ff88', whiteSpace: 'nowrap' }}>{r.gain}</div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#44ff88', whiteSpace: 'nowrap', fontFamily: 'JetBrains Mono, monospace' }}>{r.gain}</div>
               </div>
             ))}
           </div>
 
           {/* Projections */}
-          <div style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem' }}>
-            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: '#FFE500', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 10 }}>Projeções de crescimento</div>
+          <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem' }}>
+            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 10 }}>Projeções de crescimento</div>
             <div style={{ display: 'flex', gap: 4, marginBottom: 14 }}>
               {(['atual','acelerado','agressivo'] as const).map(p => (
                 <button key={p} onClick={() => setProj(p)} style={{
-                  fontFamily: 'DM Mono, monospace', fontSize: '0.55rem', letterSpacing: '0.08em', padding: '3px 8px',
-                  background: proj === p ? 'rgba(255,229,0,0.07)' : 'none',
-                  border: `1px solid ${proj === p ? 'rgba(255,229,0,0.3)' : 'rgba(255,255,255,0.07)'}`,
-                  color: proj === p ? '#FFE500' : '#555', cursor: 'pointer'
+                  fontFamily: 'JetBrains Mono, monospace', fontSize: '0.55rem', letterSpacing: '0.08em', padding: '3px 8px',
+                  background: proj === p ? 'rgba(201,162,74,0.07)' : 'none',
+                  border: `1px solid ${proj === p ? 'rgba(201,162,74,0.3)' : 'rgba(255,255,255,0.07)'}`,
+                  color: proj === p ? '#C9A24A' : '#5A5E6B', cursor: 'pointer', borderRadius: 3
                 }}>{p}</button>
               ))}
             </div>
             {Object.entries(PROJS[proj]).map(([k, v]) => (
               <div key={k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <span style={{ fontSize: '0.82rem', color: '#666' }}>{k === 'taxa' ? 'Taxa de crescimento' : `Em ${k}`}</span>
-                <span style={{ fontSize: '0.88rem', fontWeight: 500, color: proj === 'agressivo' && k !== 'taxa' ? '#FFE500' : '#f0f0eb' }}>{v}</span>
+                <span style={{ fontSize: '0.82rem', color: '#5A5E6B', fontFamily: 'Inter, sans-serif' }}>{k === 'taxa' ? 'Taxa de crescimento' : `Em ${k}`}</span>
+                <span style={{ fontSize: '0.88rem', fontWeight: 600, color: proj === 'agressivo' && k !== 'taxa' ? '#C9A24A' : '#F0EDE8', fontFamily: 'Space Grotesk, sans-serif' }}>{v}</span>
               </div>
             ))}
           </div>
@@ -153,19 +152,19 @@ export default function GrowthPage() {
         </div>
 
         {/* Competitors */}
-        <div style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem', marginTop: 14 }}>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: '#FFE500', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>Comparativo — crescimento mensal</div>
+        <div style={{ background: '#161920', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '1.2rem', marginTop: 14 }}>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#C9A24A', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 12 }}>Comparativo — crescimento mensal</div>
           {COMPS.map(c => (
             <div key={c.handle} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: c.isYou ? 'rgba(255,229,0,0.15)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 500, color: c.isYou ? '#FFE500' : '#555', flexShrink: 0 }}>{c.initials}</div>
-              <div style={{ flex: 1, fontSize: '0.82rem', fontWeight: 500, color: c.isYou ? '#FFE500' : '#f0f0eb' }}>{c.handle} {c.isYou && <span style={{ fontSize: '0.65rem', fontWeight: 400, color: '#555' }}>você</span>}</div>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: c.isYou ? 'rgba(201,162,74,0.15)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 600, color: c.isYou ? '#C9A24A' : '#5A5E6B', flexShrink: 0, fontFamily: 'Space Grotesk, sans-serif' }}>{c.initials}</div>
+              <div style={{ flex: 1, fontSize: '0.82rem', fontWeight: 500, color: c.isYou ? '#C9A24A' : '#F0EDE8', fontFamily: 'Inter, sans-serif' }}>{c.handle} {c.isYou && <span style={{ fontSize: '0.65rem', fontWeight: 400, color: '#5A5E6B' }}>você</span>}</div>
               <div style={{ width: 100, height: 4, background: 'rgba(255,255,255,0.05)', borderRadius: 2, overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${(c.growth / 10) * 100}%`, background: c.isYou ? '#FFE500' : '#378ADD', borderRadius: 2 }} />
+                <div style={{ height: '100%', width: `${(c.growth / 10) * 100}%`, background: c.isYou ? '#C9A24A' : '#378ADD', borderRadius: 2 }} />
               </div>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.7rem', color: c.isYou ? '#FFE500' : '#888', minWidth: 40, textAlign: 'right' }}>+{c.growth}%</div>
+              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.7rem', color: c.isYou ? '#C9A24A' : '#5A5E6B', minWidth: 40, textAlign: 'right' }}>+{c.growth}%</div>
             </div>
           ))}
-          <div style={{ marginTop: 12, padding: '8px 12px', background: 'rgba(68,255,136,0.05)', border: '1px solid rgba(68,255,136,0.15)', borderRadius: 6, fontSize: '0.78rem', color: '#44ff88', lineHeight: 1.5 }}>
+          <div style={{ marginTop: 12, padding: '8px 12px', background: 'rgba(68,255,136,0.05)', border: '1px solid rgba(68,255,136,0.15)', borderRadius: 6, fontSize: '0.78rem', color: '#44ff88', lineHeight: 1.5, fontFamily: 'Inter, sans-serif' }}>
             Você está acima de 2 dos 3 concorrentes. Para superar o Alfredo Soares, precisa de +1 vídeo viral por semana com tema de gestão empresarial.
           </div>
         </div>

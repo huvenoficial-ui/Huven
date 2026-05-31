@@ -17,12 +17,12 @@ export default function Nav({ videoCount = 0 }: { videoCount?: number }) {
     <nav style={{
       height: 56, display: 'flex', alignItems: 'center',
       borderBottom: '1px solid rgba(255,255,255,0.07)',
-      background: '#080808', padding: '0 1.5rem',
+      background: '#0D0E12', padding: '0 1.5rem',
       position: 'sticky', top: 0, zIndex: 50
     }}>
       <div style={{
-        fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.4rem',
-        letterSpacing: '0.15em', color: '#FFE500',
+        fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700,
+        fontSize: '1.1rem', letterSpacing: '-0.02em', color: '#C9A24A',
         paddingRight: '1rem', marginRight: '0.5rem',
         borderRight: '1px solid rgba(255,255,255,0.07)'
       }}>HUVEN</div>
@@ -32,11 +32,11 @@ export default function Nav({ videoCount = 0 }: { videoCount?: number }) {
           const active = path === l.href
           return (
             <Link key={l.href} href={l.href} style={{
-              fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
-              letterSpacing: '0.15em', textTransform: 'uppercase',
+              fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem',
+              letterSpacing: '0.18em', textTransform: 'uppercase',
               padding: '0.45rem 1rem', textDecoration: 'none',
-              color: active ? '#FFE500' : '#666',
-              borderBottom: active ? '2px solid #FFE500' : '2px solid transparent',
+              color: active ? '#C9A24A' : '#5A5E6B',
+              borderBottom: active ? '2px solid #C9A24A' : '2px solid transparent',
               transition: 'all 0.15s'
             }}>{l.label}</Link>
           )
@@ -44,9 +44,9 @@ export default function Nav({ videoCount = 0 }: { videoCount?: number }) {
       </div>
 
       <div style={{
-        fontFamily: 'DM Mono, monospace', fontSize: '0.58rem',
-        color: '#FFE500', background: 'rgba(255,229,0,0.07)',
-        border: '1px solid rgba(255,229,0,0.25)',
+        fontFamily: 'JetBrains Mono, monospace', fontSize: '0.58rem',
+        color: '#C9A24A', background: 'rgba(201,162,74,0.07)',
+        border: '1px solid rgba(201,162,74,0.25)',
         padding: '0.2rem 0.7rem', letterSpacing: '0.1em'
       }}>
         {videoCount} vídeo{videoCount !== 1 ? 's' : ''} analisado{videoCount !== 1 ? 's' : ''}

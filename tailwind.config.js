@@ -8,14 +8,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        yellow: { DEFAULT: '#FFE500', dark: '#B87D00' },
-        black: { DEFAULT: '#080808' },
-        dark: { DEFAULT: '#101010' },
-        card: { DEFAULT: '#141414' },
+        gold: { DEFAULT: '#C9A24A' },
+        ink: { DEFAULT: '#0D0E12' },
+        surface: { DEFAULT: '#111318' },
+        card: { DEFAULT: '#161920' },
       },
       fontFamily: {
-        bebas: ['Bebas Neue', 'sans-serif'],
-        mono: ['DM Mono', 'monospace'],
+        display: ['Space Grotesk', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       }
     },
   },
