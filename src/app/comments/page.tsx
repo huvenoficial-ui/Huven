@@ -93,7 +93,8 @@ export default function CRMPage() {
     const tag = (newTag[id] || '').trim()
     if (!tag) return
     const lead = leads.find(l => l.id === id)!
-    const tags = [...new Set([...lead.tags, tag])]
+    const merged = lead.tags.concat([tag])
+    const tags = merged.filter((t, i) => merged.indexOf(t) === i)
     setLeads(prev => prev.map(l => l.id === id ? { ...l, tags } : l))
     setNewTag(prev => ({ ...prev, [id]: '' }))
     await supabase.from('leads').update({ tags }).eq('id', id)
